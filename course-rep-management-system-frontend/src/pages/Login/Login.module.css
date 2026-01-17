@@ -1,0 +1,169 @@
+.loginPage {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+}
+
+.loginCard {
+    background: #ffffff;
+    width: 100%;
+    max-width: 360px;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+/* App Name & Description */
+.appName {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.description {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 2rem;
+}
+
+/* Error */
+.errorMessage {
+    color: #e74c3c;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+/* Form Inputs */
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+.inputGroup {
+    position: relative;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #ddd;
+    transition: border-color 0.3s ease;
+}
+
+.inputGroup:focus-within {
+    border-color: #001f3f;
+}
+
+.icon {
+    color: #666;
+    margin-right: 10px;
+}
+
+.input {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+}
+
+.eyeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+    padding: 5px;
+}
+
+/* Submit Button */
+.loginButton {
+    width: 100%;
+    padding: 12px;
+    background-color: #001f3f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.loginButton:hover {
+    background-color: #003366;
+}
+
+/* OR Divider */
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 1rem 0;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #ddd;
+    margin: 0 0.5rem;
+}
+
+/* Google Button */
+.googleButton {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #fff;
+    color: #444;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s ease, border 0.3s ease;
+}
+
+.googleButton:hover {
+    background-color: #f5f5f5;
+    border-color: #ccc;
+}
+
+.googleIcon {
+    vertical-align: middle;
+}
+
+/* Footer */
+.footerText {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.footerText a {
+    color: #001f3f;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+    .card {
+        padding: 1.5rem;
+    }
+
+    .appName {
+        font-size: 1.5rem;
+    }
+
+    .description {
+        font-size: 0.9rem;
+    }
+}

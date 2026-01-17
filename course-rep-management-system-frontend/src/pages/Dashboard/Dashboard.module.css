@@ -1,0 +1,433 @@
+/* Container */
+.dashboardContainer {
+  display: flex;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+  position: relative;
+}
+
+/* Overlay for mobile */
+.overlay {
+  display: none;
+}
+
+/* Sidebar */
+.sidebar {
+  background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
+  width: 260px;
+  transition: transform 0.3s ease, width 0.3s ease;
+  flex-shrink: 0;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar.closed {
+  transform: translateX(0);
+}
+
+.sidebarHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.logo {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.closeButton {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.menuButton {
+  display: none;
+  background: none;
+  border: none;
+  color: #001f3f;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 1rem;
+}
+
+/* Navigation */
+.nav {
+  flex: 1;
+}
+
+.nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease;
+  margin-bottom: 0.5rem;
+}
+
+.nav li:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.nav li.active {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.logoutButton {
+  background-color: #001f3f;
+  border: none;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  width: 100%;
+  margin-bottom: 50px;
+}
+
+.logoutButton:hover {
+  background-color: #003366;
+}
+
+/* Main Content */
+.mainContent {
+  flex: 1;
+  padding: 2rem;
+  background-color: white;
+  overflow-y: auto;
+  min-width: 0;
+  margin-left: 260px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.headerLeft h1 {
+  margin: 0;
+  color: #001f3f;
+  font-size: 1.8rem;
+}
+
+.userProfile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #f0f4ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  color: #001f3f;
+}
+
+.userName {
+  white-space: nowrap;
+}
+
+/* Cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  background-color: #f0f4ff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.card h3 {
+  margin: 0 0 0.5rem 0;
+  color: #001f3f;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.card p {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #001f3f;
+  margin: 0;
+}
+
+/* Quick Actions */
+.quickActions {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  background-color: #001f3f;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.actionButton:hover {
+  background-color: #003366;
+}
+
+.actionButton.secondary {
+  background-color: #a1c4fd;
+}
+
+.actionButton.secondary:hover {
+  background-color: #8ab4f8;
+}
+
+/* Table Section */
+.tableSection {
+  margin-top: 2rem;
+}
+
+.tableSection h2 {
+  margin: 0 0 1rem 0;
+  color: #001f3f;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  min-width: 600px;
+}
+
+.table th {
+  padding: 12px 15px;
+  text-align: left;
+  background-color: #a1c4fd;
+  color: white;
+  font-weight: 600;
+}
+
+.table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.table tr:hover {
+  background-color: #f8f9fa;
+}
+
+.badge {
+  background-color: #e6f0ff;
+  color: #001f3f;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: inline-block;
+}
+
+.statusText {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Tablet Styles */
+@media (max-width: 1024px) {
+  .overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 998;
+  }
+
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 999;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .sidebar.closed {
+    transform: translateX(-100%);
+  }
+
+  .closeButton {
+    display: block;
+  }
+
+  .menuButton {
+    display: block;
+  }
+
+  .mainContent {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .headerLeft {
+    width: 100%;
+  }
+
+  .headerLeft h1 {
+    font-size: 1.5rem;
+  }
+
+  .userProfile {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .quickActions {
+    flex-direction: column;
+  }
+
+  .actionButton {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .tableWrapper {
+    border-radius: 8px;
+  }
+}
+
+/* Small Mobile Styles */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 280px;
+  }
+
+  .mainContent {
+    padding: 1rem 0.75rem;
+  }
+
+  .headerLeft h1 {
+    font-size: 1.3rem;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  .card h3 {
+    font-size: 0.85rem;
+  }
+
+  .card p {
+    font-size: 1.5rem;
+  }
+
+  .userName {
+    display: none;
+  }
+
+  .actionButton span {
+    font-size: 0.9rem;
+  }
+
+  .table {
+    font-size: 0.85rem;
+    min-width: 500px;
+  }
+
+  .table th,
+  .table td {
+    padding: 10px 8px;
+  }
+
+  .badge {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+
+  .statusText {
+    font-size: 0.8rem;
+  }
+}
+
+/* Very Small Screens */
+@media (max-width: 360px) {
+  .sidebar {
+    width: 100%;
+  }
+
+  .card p {
+    font-size: 1.3rem;
+  }
+}
