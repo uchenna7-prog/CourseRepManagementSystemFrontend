@@ -1,526 +1,261 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Plus, Search, Mail, Hash, User, Trash2, X } from "lucide-react";
 import styles from "./Coursemates.module.css";
-import { User, Users, ClipboardList, Calendar, LogOut, Menu, Plus, Trash2, Search, Eye, X, Mail, Hash } from "lucide-react";
+import { useAuth } from "../../auth/useAuth";
+
+const API_BASE = "http://127.0.0.1:5000";
 
 const Coursemates = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeTab, setActiveTab] = useState("coursemates");
-  const [isMobile, setIsMobile] = useState(false);
-  
-  // Coursemates state
-  const [coursemates, setCoursemates] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedCoursemate, setSelectedCoursemate] = useState(null);
-  const [error, setError] = useState(null);
+  const { accessToken } = useAuth();
 
-  // Form state
-  const [formData, setFormData] = useState({
+  const [coursemates, setCoursemates] = useState([]);
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+
+  const [form, setForm] = useState({
     firstName: "",
     middleName: "",
     lastName: "",
     email: "",
-    matNumber: ""
+    matNumber: "",
   });
 
-  // Sample data
-  const courseRepName = "Chukwudi Okafor";
-
-  // Check screen size
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsMobile(window.innerWidth < 1024);
-      if (window.innerWidth >= 1024) {
-        setSidebarOpen(true);
-      } else {
-        setSidebarOpen(false);
-      }
-    };
-
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  // Fetch all coursemates
-  useEffect(() => {
-    fetchCoursemates();
-  }, []);
-
+  /* ================= FETCH ALL ================= */
   const fetchCoursemates = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/coursemates/', {
-        method: 'GET',
+
+      const res = await fetch(`${API_BASE}/coursemates/`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${accessToken}`,
+        },
+        credentials: "include",
       });
 
-      if (!response.ok) throw new Error('Failed to fetch coursemates');
-      
-      const data = await response.json();
-      setCoursemates(data.courseMates);
-      setError(null);
+      if (!res.ok) throw new Error("Failed to fetch coursemates");
+
+      const data = await res.json();
+      setCoursemates(data.courseMates || []);
     } catch (err) {
-      setError(err.message);
-      console.error('Error fetching coursemates:', err);
+      console.error(err);
+      alert("Failed to load coursemates");
     } finally {
       setLoading(false);
     }
   };
 
-  // Search coursemates
-  const handleSearch = async (query) => {
-    setSearchQuery(query);
-    
-    if (!query.trim()) {
+  /* ================= SEARCH ================= */
+  const handleSearch = async (value) => {
+    setSearch(value);
+
+    if (!value.trim()) {
       fetchCoursemates();
       return;
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/coursemates/search?q=${encodeURIComponent(query)}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const res = await fetch(
+        `${API_BASE}/coursemates/search?q=${value}`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          credentials: "include",
         }
-      });
+      );
 
-      if (!response.ok) throw new Error('Search failed');
-      
-      const data = await response.json();
-      setCoursemates(data.courseMates);
+      if (!res.ok) throw new Error("Search failed");
+
+      const data = await res.json();
+      setCoursemates(data.courseMates || []);
     } catch (err) {
-      setError(err.message);
-      console.error('Error searching coursemates:', err);
+      console.error(err);
+      alert("Search failed");
     }
   };
 
-  // Add new coursemate
-  const handleAddCoursemate = async (e) => {
+  /* ================= ADD ================= */
+  const handleAdd = async (e) => {
     e.preventDefault();
+
     try {
-      const token = localStorage.getItem('token');
-      
-      const response = await fetch('/api/coursemates/', {
-        method: 'POST',
+      const res = await fetch(`${API_BASE}/coursemates/`, {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          middleName: formData.middleName || null,
-          lastName: formData.lastName,
-          email: formData.email,
-          matNumber: formData.matNumber
-        })
+        credentials: "include",
+        body: JSON.stringify(form), // ✅ CAMEL CASE
       });
 
-      if (!response.ok) throw new Error('Failed to add coursemate');
-      
-      const data = await response.json();
-      
-      setFormData({
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Failed to add coursemate");
+      }
+
+      setShowModal(false);
+      setForm({
         firstName: "",
         middleName: "",
         lastName: "",
         email: "",
-        matNumber: ""
+        matNumber: "",
       });
-      setShowAddModal(false);
+
       fetchCoursemates();
-      alert(data.message);
     } catch (err) {
-      setError(err.message);
-      console.error('Error adding coursemate:', err);
+      console.error(err);
+      alert(err.message);
     }
   };
 
-  // Delete coursemate
-  const handleDeleteCoursemate = async (coursemateId, name) => {
-    if (!window.confirm(`Are you sure you want to delete ${name}?`)) {
-      return;
-    }
+  /* ================= DELETE ================= */
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this coursemate?")) return;
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/coursemates/${coursemateId}`, {
-        method: 'DELETE',
+      const res = await fetch(`${API_BASE}/coursemates/${id}`, {
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${accessToken}`,
+        },
+        credentials: "include",
       });
 
-      if (!response.ok) throw new Error('Failed to delete coursemate');
-      
-      const data = await response.json();
+      if (!res.ok) throw new Error("Delete failed");
+
       fetchCoursemates();
-      alert(data.message);
     } catch (err) {
-      setError(err.message);
-      console.error('Error deleting coursemate:', err);
+      console.error(err);
+      alert("Failed to delete coursemate");
     }
   };
 
-  // View coursemate details
-  const handleViewCoursemate = async (coursemateId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch(`/api/coursemates/${coursemateId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) throw new Error('Coursemate not found');
-      
-      const data = await response.json();
-      setSelectedCoursemate(data.courseMate);
-    } catch (err) {
-      setError(err.message);
-      console.error('Error fetching coursemate:', err);
-    }
-  };
-
-  const handleNavClick = (tab) => {
-    setActiveTab(tab);
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
-  };
+  useEffect(() => {
+    fetchCoursemates();
+  }, []);
 
   return (
-    <div className={styles.dashboardContainer}>
-      {/* Overlay for mobile */}
-      {isMobile && sidebarOpen && (
-        <div 
-          className={styles.overlay} 
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.open : styles.closed}`}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.logo}>CourseRep</h2>
-          <button
-            className={styles.closeButton}
-            onClick={() => setSidebarOpen(false)}
-          >
-            <X size={24} />
-          </button>
-        </div>
-        <nav className={styles.nav}>
-          <ul>
-            <li 
-              className={activeTab === "overview" ? styles.active : ""}
-              onClick={() => handleNavClick("overview")}
-            >
-              <Calendar size={20} />
-              <span>Overview</span>
-            </li>
-            <li 
-              className={activeTab === "coursemates" ? styles.active : ""}
-              onClick={() => handleNavClick("coursemates")}
-            >
-              <Users size={20} />
-              <span>Coursemates</span>
-            </li>
-            <li 
-              className={activeTab === "activities" ? styles.active : ""}
-              onClick={() => handleNavClick("activities")}
-            >
-              <ClipboardList size={20} />
-              <span>Activities</span>
-            </li>
-          </ul>
-        </nav>
-        <button className={styles.logoutButton}>
-          <LogOut size={18} />
-          <span>Logout</span>
+    <div className={styles.coursemates}>
+      {/* Header */}
+      <div className={styles.header}>
+        <h1>Coursemates</h1>
+        <button className={styles.addButton} onClick={() => setShowModal(true)}>
+          <Plus size={18} />
+          Add Coursemate
         </button>
-      </aside>
+      </div>
 
-      {/* Main Content */}
-      <main className={styles.mainContent}>
-        <header className={styles.header}>
-          <div className={styles.headerLeft}>
-            <button
-              className={styles.menuButton}
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu size={24} />
-            </button>
-            <h1>Coursemates</h1>
-          </div>
-          <div className={styles.userProfile}>
-            <User size={24} />
-            <span className={styles.userName}>{courseRepName}</span>
-          </div>
-        </header>
+      {/* Search */}
+      <div className={styles.searchBox}>
+        <Search size={18} />
+        <input
+          placeholder="Search by name or matric number..."
+          value={search}
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+      </div>
 
-        {/* Stats */}
-        <div className={styles.statsCard}>
-          <div className={styles.statItem}>
-            <Users size={32} className={styles.statIcon} />
-            <div>
-              <p className={styles.statLabel}>Total Coursemates</p>
-              <p className={styles.statValue}>{coursemates.length}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Search and Add Button */}
-        <div className={styles.actionBar}>
-          <div className={styles.searchBar}>
-            <Search size={20} className={styles.searchIcon} />
-            <input
-              type="text"
-              placeholder="Search by name, email, or mat number..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              className={styles.searchInput}
-            />
-          </div>
-          <button 
-            className={styles.addButton}
-            onClick={() => setShowAddModal(true)}
-          >
-            <Plus size={18} />
-            <span>Add Coursemate</span>
-          </button>
-        </div>
-
-        {/* Error Message */}
-        {error && (
-          <div className={styles.errorMessage}>
-            {error}
-          </div>
-        )}
-
-        {/* Loading State */}
+      {/* Table */}
+      <div className={styles.tableWrapper}>
         {loading ? (
-          <div className={styles.loading}>Loading coursemates...</div>
+          <p className={styles.loading}>Loading...</p>
         ) : (
-          <>
-            {/* Coursemates Table */}
-            {coursemates.length === 0 ? (
-              <div className={styles.emptyState}>
-                <Users size={64} className={styles.emptyIcon} />
-                <h3>No coursemates found</h3>
-                <p>Add your first coursemate to get started</p>
-              </div>
-            ) : (
-              <div className={styles.tableSection}>
-                <div className={styles.tableWrapper}>
-                  <table className={styles.table}>
-                    <thead>
-                      <tr>
-                        <th>Name</th>
-                        <th>Mat Number</th>
-                        <th>Email</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {coursemates.map((coursemate) => (
-                        <tr key={coursemate.id}>
-                          <td className={styles.nameCell}>
-                            <div className={styles.nameWrapper}>
-                              <div className={styles.avatar}>
-                                {coursemate.firstName.charAt(0)}{coursemate.lastName.charAt(0)}
-                              </div>
-                              <div>
-                                <div className={styles.fullName}>
-                                  {coursemate.firstName} {coursemate.middleName ? coursemate.middleName + ' ' : ''}{coursemate.lastName}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <span className={styles.matNumber}>
-                              <Hash size={14} />
-                              {coursemate.matNumber}
-                            </span>
-                          </td>
-                          <td className={styles.emailCell}>
-                            <Mail size={14} className={styles.emailIcon} />
-                            {coursemate.email}
-                          </td>
-                          <td className={styles.actionsCell}>
-                            <button
-                              className={styles.viewButton}
-                              onClick={() => handleViewCoursemate(coursemate.id)}
-                              title="View details"
-                            >
-                              <Eye size={16} />
-                            </button>
-                            <button
-                              className={styles.deleteButton}
-                              onClick={() => handleDeleteCoursemate(
-                                coursemate.id, 
-                                `${coursemate.firstName} ${coursemate.lastName}`
-                              )}
-                              title="Delete coursemate"
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </>
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Matric</th>
+                <th>Email</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {coursemates.length ? (
+                coursemates.map((c) => (
+                  <tr key={c.id}>
+                    <td className={styles.nameCell}>
+                      <User size={18} />
+                      {c.firstName} {c.middleName || ""} {c.lastName}
+                    </td>
+                    <td>
+                      <Hash size={16} /> {c.matNumber}
+                    </td>
+                    <td>
+                      <Mail size={16} /> {c.email}
+                    </td>
+                    <td>
+                      <Trash2
+                        className={styles.delete}
+                        onClick={() => handleDelete(c.id)}
+                      />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className={styles.empty}>
+                    No coursemates found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         )}
-      </main>
+      </div>
 
-      {/* Add Coursemate Modal */}
-      {showAddModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowAddModal(false)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      {/* Modal */}
+      {showModal && (
+        <div className={styles.modalOverlay}>
+          <form className={styles.modal} onSubmit={handleAdd}>
             <div className={styles.modalHeader}>
               <h2>Add Coursemate</h2>
-              <button
-                className={styles.closeButton}
-                onClick={() => setShowAddModal(false)}
-              >
-                <X size={24} />
-              </button>
+              <X onClick={() => setShowModal(false)} />
             </div>
-            <form onSubmit={handleAddCoursemate} className={styles.form}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="firstName">First Name</label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    value={formData.firstName}
-                    onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                    placeholder="e.g., John"
-                    required
-                  />
-                </div>
-                <div className={styles.formGroup}>
-                  <label htmlFor="middleName">Middle Name (Optional)</label>
-                  <input
-                    type="text"
-                    id="middleName"
-                    value={formData.middleName}
-                    onChange={(e) => setFormData({...formData, middleName: e.target.value})}
-                    placeholder="e.g., Paul"
-                  />
-                </div>
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="lastName">Last Name</label>
-                <input
-                  type="text"
-                  id="lastName"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                  placeholder="e.g., Doe"
-                  required
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  placeholder="e.g., john.doe@example.com"
-                  required
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label htmlFor="matNumber">Matriculation Number</label>
-                <input
-                  type="text"
-                  id="matNumber"
-                  value={formData.matNumber}
-                  onChange={(e) => setFormData({...formData, matNumber: e.target.value})}
-                  placeholder="e.g., 2020/12345"
-                  required
-                />
-              </div>
-              <div className={styles.formActions}>
-                <button
-                  type="button"
-                  className={styles.cancelButton}
-                  onClick={() => setShowAddModal(false)}
-                >
-                  Cancel
-                </button>
-                <button type="submit" className={styles.submitButton}>
-                  Add Coursemate
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* Coursemate Details Modal */}
-      {selectedCoursemate && (
-        <div className={styles.modalOverlay} onClick={() => setSelectedCoursemate(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h2>Coursemate Details</h2>
-              <button
-                className={styles.closeButton}
-                onClick={() => setSelectedCoursemate(null)}
-              >
-                <X size={24} />
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <div className={styles.detailAvatar}>
-                {selectedCoursemate.firstName.charAt(0)}{selectedCoursemate.lastName.charAt(0)}
-              </div>
-              <div className={styles.detailItem}>
-                <strong>Full Name:</strong>
-                <p>
-                  {selectedCoursemate.firstName} {selectedCoursemate.middleName ? selectedCoursemate.middleName + ' ' : ''}{selectedCoursemate.lastName}
-                </p>
-              </div>
-              <div className={styles.detailItem}>
-                <strong>Email:</strong>
-                <p>{selectedCoursemate.email}</p>
-              </div>
-              <div className={styles.detailItem}>
-                <strong>Matriculation Number:</strong>
-                <p>{selectedCoursemate.matNumber}</p>
-              </div>
-              {selectedCoursemate.createdAt && (
-                <div className={styles.detailItem}>
-                  <strong>Added On:</strong>
-                  <p>{new Date(selectedCoursemate.createdAt).toLocaleDateString()}</p>
-                </div>
-              )}
-            </div>
-            <div className={styles.formActions}>
-              <button
-                className={styles.cancelButton}
-                onClick={() => setSelectedCoursemate(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
+            <input
+              placeholder="First Name"
+              required
+              value={form.firstName}
+              onChange={(e) =>
+                setForm({ ...form, firstName: e.target.value })
+              }
+            />
+            <input
+              placeholder="Middle Name (optional)"
+              value={form.middleName}
+              onChange={(e) =>
+                setForm({ ...form, middleName: e.target.value })
+              }
+            />
+            <input
+              placeholder="Last Name"
+              required
+              value={form.lastName}
+              onChange={(e) =>
+                setForm({ ...form, lastName: e.target.value })
+              }
+            />
+            <input
+              placeholder="Email"
+              type="email"
+              required
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+            />
+            <input
+              placeholder="Matric Number"
+              required
+              value={form.matNumber}
+              onChange={(e) =>
+                setForm({ ...form, matNumber: e.target.value })
+              }
+            />
+
+            <button type="submit">Add</button>
+          </form>
         </div>
       )}
     </div>

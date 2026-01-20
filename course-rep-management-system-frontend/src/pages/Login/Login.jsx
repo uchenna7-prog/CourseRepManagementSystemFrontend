@@ -1,114 +1,99 @@
-import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { FcGoogle } from 'react-icons/fc'; // Google icon
-import styles from './Login.module.css';
+import React, { useState } from "react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../auth/useAuth";
+import styles from "./Login.module.css";
 
 const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const { loginUser } = useAuth();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
-  const handleLogin = async () => {
-    try {
-      const res = await fetch('http://127.0.0.1:5000/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email,
-          password
-        }),
-      });
+  const [error, setError] = useState("");
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.message || 'login failed');
-        return;
-      }
-
-      console.log('login successful:', data);
-    } 
-    catch (err) {
-      setError('Something went wrong. Please try again.');
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-    setError('');
-    handleLogin()
-  };
+    setError("");
 
-  const handleGoogleLogin = () => {
-    console.log('Continue with Google clicked');
-    // TODO: Add Google auth logic here
+    try {
+      await loginUser(email, password);
+    } catch (err) {
+      setError(err.message || "Login failed");
+    }
   };
 
   return (
     <div className={styles.loginPage}>
-      <div className={styles.loginCard }>
+      <div className={styles.loginCard}>
+        {/* App name & description */}
         <h1 className={styles.appName}>RepTrack</h1>
-        <p className={styles.description}>Manage activities efficiently</p>
+        <p className={styles.appDescription}>
+          Manage course representatives, track activities, and stay organized —
+          all in one place.
+        </p>
 
         {error && <p className={styles.errorMessage}>{error}</p>}
 
+        {/* Login form */}
         <form onSubmit={handleSubmit} className={styles.form}>
-          {/* Email */}
           <div className={styles.inputGroup}>
-            <Mail className={styles.icon} size={20} />
+            <Mail size={18} />
             <input
               type="email"
-              placeholder="Email"
+              placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={styles.input}
+              required
             />
           </div>
 
-          {/* Password */}
           <div className={styles.inputGroup}>
-            <Lock className={styles.icon} size={20} />
+            <Lock size={18} />
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={styles.input}
+              required
             />
             <button
               type="button"
-              className={styles.eyeButton}
+              className={styles.eyeBtn}
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
-          {/* Submit */}
-          <button type="submit" className={styles.loginButton}>
-            LOGIN
+          {/* Forgot password */}
+          <div className={styles.forgotPassword}>
+            <Link to="/forgot-password">Forgot password?</Link>
+          </div>
+
+          <button type="submit" className={styles.loginBtn}>
+            Login
           </button>
         </form>
 
-        {/* OR Divider */}
+        {/* Divider */}
         <div className={styles.divider}>
           <span>OR</span>
         </div>
 
-        {/* Google Login */}
-        <button className={styles.googleButton} onClick={handleGoogleLogin}>
-          <FcGoogle size={20} className={styles.googleIcon} />
-          Continue with Google
+        {/* Google login */}
+        <button className={styles.googleBtn} type="button">
+          <FcGoogle size={20} />
+          <span>Continue with Google</span>
         </button>
 
-        <p className={styles.footerText}>
-          Don’t have an account? <a href="#signup">Sign up</a>
+        {/* Sign up link */}
+        <p className={styles.signUpText}>
+          Don't have an account?{" "}
+          <Link to="/signup" className={styles.signUpLink}>
+            Sign up
+          </Link>
         </p>
       </div>
     </div>

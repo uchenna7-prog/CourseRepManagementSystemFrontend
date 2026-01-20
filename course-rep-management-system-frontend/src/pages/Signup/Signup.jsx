@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import styles from './Signup.module.css';
 
 const Signup = () => {
@@ -11,158 +12,146 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
 
   const handleRegistration = async () => {
     try {
       const res = await fetch('http://127.0.0.1:5000/auth/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          firstName,
-          middleName,
-          lastName,
-          email,
-          password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ firstName, middleName, lastName, email, password }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
-        setError(data.message || 'Registration failed');
+        setMessage(data.message || 'Registration failed');
         return;
       }
-
       console.log('Registration successful:', data);
-    } 
-    catch (err) {
-      setError('Something went wrong. Please try again.');
+    } catch {
+      setMessage('Something went wrong. Please try again.');
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!firstName || !lastName || !email || !password || !confirmPassword) {
-      setError('Please fill in all required fields');
+      setMessage('Please fill in all required fields');
       return;
     }
-
     if (password !== confirmPassword) {
-      setError('Passwords do not match');
+      setMessage('Passwords do not match');
       return;
     }
-
-    setError('');
+    setMessage('');
     handleRegistration();
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.signupPage}>
       <div className={styles.signupCard}>
         <h1 className={styles.appName}>RepTrack</h1>
-        <p className={styles.description}>Create your account</p>
+        <p className={styles.appDescription}>
+          Create your account and manage course representatives easily.
+        </p>
 
-        {error && <p className={styles.errorMessage}>{error}</p>}
+        {message && <p className={styles.errorMessage}>{message}</p>}
 
         <form onSubmit={handleSubmit} className={styles.form}>
-
+          {/* First Name */}
           <div className={styles.inputGroup}>
-            <User className={styles.icon} size={20} />
+            <User size={18} />
             <input
               type="text"
               placeholder="First Name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
-              className={styles.input}
+              required
             />
           </div>
 
-          {/* Middle Name (Optional) */}
+          {/* Middle Name */}
           <div className={styles.inputGroup}>
-            <User className={styles.icon} size={20} />
+            <User size={18} />
             <input
               type="text"
               placeholder="Middle Name (Optional)"
               value={middleName}
               onChange={(e) => setMiddleName(e.target.value)}
-              className={styles.input}
             />
           </div>
 
-          {/* Surname */}
+          {/* Last Name */}
           <div className={styles.inputGroup}>
-            <User className={styles.icon} size={20} />
+            <User size={18} />
             <input
               type="text"
               placeholder="Last Name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className={styles.input}
+              required
             />
           </div>
 
-  
+          {/* Email */}
           <div className={styles.inputGroup}>
-            <Mail className={styles.icon} size={20} />
+            <Mail size={18} />
             <input
               type="email"
               placeholder="Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className={styles.input}
+              required
             />
           </div>
 
           {/* Password */}
           <div className={styles.inputGroup}>
-            <Lock className={styles.icon} size={20} />
+            <Lock size={18} />
             <input
               type={showPassword ? 'text' : 'password'}
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className={styles.input}
+              required
             />
             <button
               type="button"
-              className={styles.eyeButton}
+              className={styles.eyeBtn}
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
-   
+          {/* Confirm Password */}
           <div className={styles.inputGroup}>
-            <Lock className={styles.icon} size={20} />
+            <Lock size={18} />
             <input
               type={showConfirm ? 'text' : 'password'}
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className={styles.input}
+              required
             />
             <button
               type="button"
-              className={styles.eyeButton}
+              className={styles.eyeBtn}
               onClick={() => setShowConfirm(!showConfirm)}
             >
               {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
 
-   
-          <button type="submit" className={styles.signupButton}>
-            SIGN UP
+          <button type="submit" className={styles.signupBtn}>
+            Sign Up
           </button>
         </form>
 
         <p className={styles.footerText}>
-          Already have an account? <a href="#login">Login</a>
+          Already have an account?{' '}
+          <Link to="/" className={styles.footerLink}>
+            Login
+          </Link>
         </p>
       </div>
     </div>
