@@ -91,6 +91,7 @@ const Activities = () => {
     fetchActivityTypes();
   }, []);
 
+
   return (
     <div className={styles.activities}>
       <div className={styles.header}>

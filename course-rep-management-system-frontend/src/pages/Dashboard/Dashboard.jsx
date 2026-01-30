@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, NavLink } from "react-router-dom";
 import {
   User,
@@ -10,13 +10,15 @@ import {
   Plus,
   X,
 } from "lucide-react";
-
+import StatCard from "../../Components/StatCard/StatCard";
+import Header from "../../Components/Header/Header";
 import styles from "./Dashboard.module.css";
 import { useAuth } from "../../auth/useAuth";
 
+
 const API_BASE = "http://127.0.0.1:5000";
 
-const Dashboard = () => {
+function Dashboard() {
   const navigate = useNavigate();
   const { user, logoutUser, accessToken } = useAuth();
 
@@ -24,23 +26,21 @@ const Dashboard = () => {
   const [isMobile, setIsMobile] = useState(false);
 
   const [coursemateCount, setCoursemateCount] = useState(0);
+  const [activitiesCount, setActivitiesCount] = useState(0);
 
-  /* ================= RESPONSIVENESS ================= */
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 1024;
-      setIsMobile(mobile);
-      setSidebarOpen(!mobile);
+  const handleResize = () => {
+      const isMobile = window.innerWidth < 1024;
+      setIsMobile(isMobile);
+      setSidebarOpen(!isMobile);
     };
 
+  useEffect(() => {
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  /* ================= FETCH COURSE MATES COUNT ================= */
-  useEffect(() => {
-    const fetchCoursemates = async () => {
+  const fetchCoursemates = async () => {
       try {
         const res = await fetch(`${API_BASE}/coursemates/`, {
           headers: {
@@ -52,22 +52,45 @@ const Dashboard = () => {
         if (!res.ok) throw new Error("Failed to fetch coursemates");
 
         const data = await res.json();
-        setCoursemateCount(data.courseMates?.length || 0);
-      } catch (err) {
+        setCoursemateCount(data.courseMates.length || 0);
+      } 
+      catch (err) {
         console.error(err);
       }
     };
 
+  const fetchActivities = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/activities/`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          credentials: "include",
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch activities");
+
+        const data = await res.json();
+        setActivitiesCount(data.activities.length || 0);
+      } 
+      catch (err) {
+        console.error(err);
+      }
+    };
+
+  useEffect(() => {
     fetchCoursemates();
   }, [accessToken]);
 
-  /* ================= LOGOUT ================= */
+  useEffect(() => {
+    fetchActivities();
+  }, [accessToken]);
+
   const handleLogout = async () => {
     await logoutUser();
     navigate("/", { replace: true });
   };
 
-  /* ================= SAMPLE ACTIVITY DATA (UNCHANGED) ================= */
   const recentActivities = [
     {
       id: 1,
@@ -88,13 +111,9 @@ const Dashboard = () => {
   ];
 
   return (
+    
     <div className={styles.dashboardContainer}>
-      {/* Mobile overlay */}
-      {isMobile && sidebarOpen && (
-        <div className={styles.overlay} onClick={() => setSidebarOpen(false)} />
-      )}
-
-      {/* Sidebar */}
+      <Header sectionName="Dashboard"/>
       <aside
         className={`${styles.sidebar} ${
           sidebarOpen ? styles.open : styles.closed
@@ -135,9 +154,7 @@ const Dashboard = () => {
         </button>
       </aside>
 
-      {/* Main content */}
       <main className={styles.mainContent}>
-        {/* Header */}
         <header className={styles.header}>
           <div className={styles.headerLeft}>
             {isMobile && (
@@ -145,28 +162,20 @@ const Dashboard = () => {
                 className={styles.menuButton}
                 onClick={() => setSidebarOpen(true)}
               >
-                <Menu size={24} />
+                <Menu size={22} />
               </button>
             )}
-            <h1>Dashboard</h1>
+    
           </div>
 
-          <div className={styles.userProfile}>
-            <User size={22} />
-            <span className={styles.userName}>
-              {user?.firstName} {user?.lastName}
-            </span>
-          </div>
         </header>
 
-        {/* Stats cards */}
         <section className={styles.cards}>
           <StatCard title="Total Coursemates" value={coursemateCount} />
-          <StatCard title="Total Activities" value={12} />
+          <StatCard title="Total Activities" value={activitiesCount} />
           <StatCard title="This Week" value={5} />
         </section>
 
-        {/* Quick actions */}
         <section className={styles.quickActions}>
           <button className={styles.actionButton}>
             <Plus size={18} />
@@ -182,17 +191,17 @@ const Dashboard = () => {
           </button>
         </section>
 
-        {/* Recent activities table */}
         <section className={styles.tableSection}>
           <h2>Recent Activities</h2>
           <div className={styles.tableWrapper}>
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Activity</th>
+                  <th>Name</th>
                   <th>Type</th>
                   <th>Date</th>
                   <th>Status</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,6 +221,7 @@ const Dashboard = () => {
                         ? `${a.present} Present, ${a.absent} Absent`
                         : `${a.submitted} Submitted, ${a.pending} Pending`}
                     </td>
+                    <td><button className={styles.viewRecordBtn}>View Record</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -223,11 +233,5 @@ const Dashboard = () => {
   );
 };
 
-const StatCard = ({ title, value }) => (
-  <div className={styles.card}>
-    <h3>{title}</h3>
-    <p>{value}</p>
-  </div>
-);
 
 export default Dashboard;

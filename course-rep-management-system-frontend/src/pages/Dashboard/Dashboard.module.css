@@ -1,31 +1,26 @@
-/* Container */
 .dashboardContainer {
   display: flex;
   min-height: 100vh;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #eef2ff, #f8fafc);
+  background: rgb(165, 163, 163);
   position: relative;
-}
+  top: 0;
 
-/* Overlay */
-.overlay {
-  display: none;
 }
 
 .sidebar {
-  background: #8ab4f8;
+  background:#000a13;
   color: white;
   display: flex;
   flex-direction: column;
   padding: 2rem 1rem;
   width: 260px;
   transition: transform 0.3s ease, width 0.3s ease;
-  flex-shrink: 0;
   height: 100vh;
   position: fixed;
   top: 0;
   left: 0;
-  overflow-y: auto;
+  z-index: 2000;
 }
 
 .sidebar.open {
@@ -41,6 +36,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  margin-top: 10vh;
 }
 
 .logo {
@@ -62,15 +58,13 @@
   display: none;
   background: none;
   border: none;
-  color: #4f46e5;
+  color:#000a13;;
   cursor: pointer;
   padding: 0.5rem;
   margin-right: 1rem;
 }
 
-/* Navigation */
 .nav {
-  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -96,13 +90,12 @@
   background-color: rgba(255, 255, 255, 0.1);
 }
 
-/* Logout */
 .logoutButton {
   background-color: #001f3f;
   border: none;
   color: white;
   padding: 10px;
-  border-radius: 8px;
+  border-radius: 5px;
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -118,20 +111,18 @@
   background-color: #003366;
 }
 
-/* Main content */
 .mainContent {
-  flex: 1;
+  flex:1;
   padding: 2rem;
   margin-left: 260px;
-  overflow-y: auto;
 }
 
-/* Header */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
+  margin-top: 10vh;
 }
 
 .headerLeft {
@@ -146,21 +137,12 @@
   font-size: 1.8rem;
 }
 
-.userProfile {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background-color: #eef2ff;
-  padding: 6px 12px;
-  border-radius: 20px;
-  color: #001f3f;
-}
+
 
 .userName {
   white-space: nowrap;
 }
 
-/* Cards */
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -168,27 +150,6 @@
   margin-bottom: 2rem;
 }
 
-.card {
-  background-color: #ffffff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-  text-align: center;
-}
-
-.card h3 {
-  margin: 0 0 0.5rem 0;
-  color: #001f3f;
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.card p {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #001f3f;
-  margin: 0;
-}
 
 /* Quick Actions */
 .quickActions {
@@ -199,7 +160,7 @@
 }
 
 .actionButton {
-  background-color: #4f46e5;
+  background: #001f3f;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -218,15 +179,15 @@
 }
 
 .actionButton.secondary {
-  background-color: #a1c4fd;
-  color: #001f3f;
+  background-color: #3B82F6;
+  color: #021222;
 }
 
 .actionButton.secondary:hover {
   background-color: #8ab4f8;
 }
 
-/* Table Section */
+
 .tableSection {
   margin-top: 2rem;
 }
@@ -237,8 +198,6 @@
 }
 
 .tableWrapper {
-  overflow-x: auto;
-  border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
@@ -252,15 +211,30 @@
 .table th {
   padding: 12px 15px;
   text-align: left;
-  background-color: #a1c4fd;
+  background-color:#021222;;
   color: white;
   font-weight: 600;
-  border-radius: 12px 12px 0 0;
+  border: 1px solid gray;
 }
 
 .table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #ddd;
+  padding: 10px 13px;
+  border: 1px solid gray;
+}
+
+.viewRecordBtn{
+  background: green;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 .table tr:hover {
@@ -338,11 +312,6 @@
     font-size: 1.5rem;
   }
 
-  .userProfile {
-    width: 100%;
-    justify-content: center;
-  }
-
   .cards {
     grid-template-columns: 1fr;
   }
@@ -368,10 +337,6 @@
 
   .headerLeft h1 {
     font-size: 1.3rem;
-  }
-
-  .card p {
-    font-size: 1.5rem;
   }
 
   .actionButton span {
